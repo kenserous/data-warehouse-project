@@ -1,7 +1,6 @@
 # Data Warehousing Project
 
-**University Project: CITS3401 Data Warehousing, University of Western Australia (UWA)** <br>
-**Result: Distinction**
+**University Project: CITS3401 Data Warehousing, University of Western Australia (UWA)**
 
 ## Disclaimer
 This project is an academic project, and as such should only be used as a guideline to understanding the project, or provide an understanding on data warehouses. **Copying any section of the project in any way risks academic misconduct** at the University of Western Australia. <br>
