@@ -4,12 +4,11 @@
 
 ## Disclaimer
 This project is an academic project, and as such should only be used as a guideline to understanding the project, or provide an understanding on data warehouses. **Copying any section of the project in any way risks academic misconduct** at the University of Western Australia. <br>
-For commercial use please refer to the *LICENSE.md* file.
+For commercial use please refer to the [*LICENSE.md*](../LICENSE.md) file.
 
 ## Project Description
-Project 2 involves designing and implementing a graph database using Python and Neo4j.
-It was completed as part of an assessment for the CITS3401 Data Warehousing unit at UWA, done individually.
-The project is based on fatalities in Australia as of December 2024.<br><br>
+Project 2 involves designing and implementing a graph database using Python and Neo4j.<br>
+The project uses a modified dataset based on fatalities in Australia as of December 2024. This dataset is provided by the University.<br>
 The full report on the project has been attached in the repository, under the file *CITS3401_Project_Report_Graph.pdf*.
 
 ## Project Structure
