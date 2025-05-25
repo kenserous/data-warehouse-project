@@ -7,9 +7,8 @@ This project is an academic project, and as such should only be used as a guidel
 For commercial use please refer to the *LICENSE.md* file.
 
 ## Project Description
-Project 1 involves designing and implementing a data warehouse using PostgreSQL, Python, and PowerBI.
-It was completed as part of an assessment for the CITS3401 Data Warehousing unit at UWA, done in collaboration with a partner.
-The project is based on fatal road crashes and fatalities in Australia as of December 2024.<br><br>
+Project 1 involves designing and implementing a data warehouse using PostgreSQL, Python, and PowerBI.<br>
+The project is based on fatal road crashes and fatalities in Australia as of December 2024.<br>
 The full report on the project has been attached in the repository, under the file *CITS3401_Project_Report_Warehouse.pdf*.
 
 ## Project Structure
