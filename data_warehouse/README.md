@@ -4,7 +4,7 @@
 
 ## Disclaimer
 This project is an academic project, and as such should only be used as a guideline to understanding the project, or provide an understanding on data warehouses. **Copying any section of the project in any way risks academic misconduct** at the University of Western Australia. <br>
-For commercial use please refer to the *LICENSE.md* file.
+For commercial use please refer to the [*LICENSE.md*](../LICENSE.md) file.
 
 ## Project Description
 Project 1 involves designing and implementing a data warehouse using PostgreSQL, Python, and PowerBI.<br>
