@@ -1,0 +1,153 @@
+// Query 1: 
+MATCH (c:Crash)-[:OCCURRED_AT]->(l:Location), 
+    (c)-[:INVOLVED]->(v:Vehicle),
+    (c)-[:HAPPENED_ON]->(t:Time),
+    (c)-[:KILLED]->(p:Person)
+WHERE c.fatalities > 1 
+    AND l.state = 'WA' 
+    AND v.articulatedTruckInvolved = 'Yes'
+    AND t.year >= 2020 AND t.year <= 2024
+RETURN 
+    p.roadUser AS roadUser,
+    p.age AS age,
+    p.gender AS gender,
+    l.LGAName AS LGAName,
+    t.month AS month,
+    t.year AS year,
+    SUM(c.fatalities) AS TotalFatalities
+
+// Query 2:
+MATCH (c:Crash)-[:OCCURRED_AT]->(l:Location), 
+    (c)-[:INVOLVED]->(v:Vehicle),
+    (c)-[:HAPPENED_ON]->(t:Time),
+    (c)-[:KILLED]->(p:Person)
+WHERE p.roadUser = 'Motorcycle rider'
+    AND (t.christmas = 'Yes' OR t.easter = 'Yes')
+    AND l.remoteness = 'Inner Regional Australia'
+WITH p.age AS age, p.gender AS gender
+RETURN 
+    gender,
+    MAX(age) AS max_age,
+    MIN(age) AS min_age
+
+// Query 3:
+MATCH (c:Crash)-[:OCCURRED_AT]->(l:Location), 
+    (c)-[:HAPPENED_ON]->(t:Time),
+    (c)-[:KILLED]->(p:Person)
+WHERE p.ageGroup = '17_to_25'
+    AND t.year = 2024
+WITH l.state AS state, t.dayType AS dayType, COUNT(*) AS Count, AVG(p.age) AS age
+RETURN 
+    state,
+    COALESCE(COLLECT(CASE WHEN dayType = 'Weekday' THEN Count END)[0], 0) AS Weekday,
+    COALESCE(COLLECT(CASE WHEN dayType = 'Weekend' THEN Count END)[0], 0) AS Weekend,
+    round(AVG(age), 2) AS avg_age 
+
+// Query 4:
+MATCH (c:Crash)-[:OCCURRED_AT]->(l:Location), 
+    (c)-[:HAPPENED_ON]->(t:Time),
+    (c)-[:KILLED]->(p:Person),
+    (c)-[:ON_ROAD]->(r:Road)
+WHERE l.state = 'WA'
+    AND (t.day = 'Friday' AND t.dayType = 'Weekend')
+    AND c.crashType = 'Multiple'
+    AND (p.gender = 'Male' OR p.gender = 'Female')
+RETURN 
+    DISTINCT c.crashID AS crashID,
+    l.SA4Name AS SA4,
+    l.remoteness AS remoteness,
+    r.roadType AS roadType
+
+// Query 5:
+MATCH (c:Crash)-[:OCCURRED_AT]->(l:Location), 
+    (c)-[:HAPPENED_ON]->(t:Time)
+WITH l.SA4Name AS SA4,
+    CASE
+        WHEN t.time >= time("07:00") AND t.time <= time("09:00") THEN "Morning"
+        WHEN t.time >= time("16:00") AND t.time <= time("18:00") THEN "Afternoon"
+        ELSE null
+    END AS Peak
+WHERE Peak IS NOT NULL
+WITH 
+    SA4, 
+    SUM(CASE WHEN Peak = "Morning" THEN 1 ELSE 0 END) AS MorningPeak,
+    SUM(CASE WHEN Peak = "Afternoon" THEN 1 ELSE 0 END) AS AfternoonPeak
+RETURN
+    SA4,
+    MorningPeak AS `Morning Peak`,
+    AfternoonPeak AS `Afternoon Peak`,
+    (MorningPeak + AfternoonPeak) AS TotalCrashes
+ORDER BY TotalCrashes DESC
+LIMIT 5
+
+// Query 6:
+MATCH path = (start:Location)-[*3]->(end:Location)
+WHERE start.LGAName <> end.LGAName
+WITH path, start.LGAName AS StartLGA, end.LGAName AS EndLGA
+ORDER BY StartLGA, EndLGA
+RETURN path
+LIMIT 3
+
+// Bonus Queries
+// Query 7: Are there more fatalities during holiday periods? Compare each state.
+MATCH (c:Crash)-[:HAPPENED_ON]->(t:Time),
+    (c)-[:OCCURRED_AT]->(l:Location)
+WITH c.fatalities AS fatalities, 
+    l.state AS state, 
+    CASE 
+        WHEN t.christmas = "Yes" THEN "Christmas"
+        WHEN t.easter = "Yes" THEN "Easter"
+        ELSE "Non-Holiday"
+    END AS period
+RETURN state,
+    period,
+    SUM(fatalities) AS TotalFatalities
+ORDER BY state, period
+
+// Query 8: Find the total number of crashes by each road type in 2020-2024, in speed zones greater than 40 km/h, that involves any large vehicle.
+MATCH (c:Crash)-[:ON_ROAD]->(r:Road),
+    (c)-[:INVOLVED]->(v:Vehicle),
+    (c)-[:HAPPENED_ON]->(t:Time)
+WHERE r.speedLimit > 40
+    AND (t.year >= 2020 AND t.year <= 2024)
+WITH r.roadType AS roadType, 
+    COUNT(*) AS TotalCrashes, 
+    CASE 
+        WHEN v.busInvolved = "Yes" THEN "Bus"
+        WHEN v.heavyRigidTruckInvolved = "Yes" THEN "Heavy Rigid Truck"
+        WHEN v.articulatedTruckInvolved = "Yes" THEN "Articulated Truck"
+        ELSE null
+    END AS vehicleInvolved
+WHERE vehicleInvolved IS NOT NULL
+RETURN roadType,
+    SUM(TotalCrashes) AS TotalCrashes
+
+// Creating Projected Graph
+CALL gds.graph.project(
+  'crashGraph',
+  ['Crash', 'Location', 'Vehicle', 'Time', 'Road', 'Person'],
+  {
+    OCCURRED_AT: {},
+    INVOLVED: {},
+    HAPPENED_ON: {},
+    ON_ROAD: {},
+    KILLED: {},
+    KILLED_AT: {}
+  }
+)
+
+// KNN Query
+CALL gds.knn.stream('crashGraph', {
+  nodeLabels: ['Crash'],
+  relationshipTypes: ['INVOLVED','OCCURRED_AT','HAPPENED_ON'],
+  topK: 5,
+  nodeProperties: ['embedding'],
+  similarityCutoff: 0.5
+})
+YIELD node1, node2, similarity
+RETURN
+  gds.util.asNode(node1).crashID AS crash_1,
+  gds.util.asNode(node2).crashID AS crash_2,
+  similarity
+ORDER BY similarity DESC
+LIMIT 25

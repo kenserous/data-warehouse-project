@@ -1,0 +1,39 @@
+// Cypher scripts for loading relationships
+
+// ON_ROAD (Crash -> Road)
+LOAD CSV WITH HEADERS FROM 'file:///rel_on_road.csv' AS row 
+MATCH (c:Crash {crashID: row.`Crash ID`}),
+(n:Road {roadID: row.`Road ID`})
+CREATE (c)-[:ON_ROAD]->(n)
+
+// KILLED and DIED_IN (Crash <-> Person)
+LOAD CSV WITH HEADERS FROM 'file:///rel_killed.csv' AS row 
+MATCH (c:Crash {crashID: row.`Crash ID`}),
+(n:Person {personID: row.`Person ID`})
+CREATE (c)-[:KILLED]->(n)
+CREATE (n)-[:DIED_IN]->(c)
+
+// OCCURRED_AT and HAS_CRASH (Crash <-> Location)
+LOAD CSV WITH HEADERS FROM 'file:///rel_occurred_at.csv' AS row 
+MATCH (c:Crash {crashID: row.`Crash ID`}),
+(n:Location {locationID: row.`Location ID`})
+CREATE (c)-[:OCCURRED_AT]->(n)
+CREATE (n)-[:HAS_CRASH]->(c)
+
+// HAPPENED_ON (Crash -> Time)
+LOAD CSV WITH HEADERS FROM 'file:///rel_happened_on.csv' AS row 
+MATCH (c:Crash {crashID: row.`Crash ID`}),
+(n:Time {timeID: row.`Time ID`})
+CREATE (c)-[:HAPPENED_ON]->(n)
+
+// INVOLVED (Crash -> Vehicle)
+LOAD CSV WITH HEADERS FROM 'file:///rel_involved.csv' AS row 
+MATCH (c:Crash {crashID: row.`Crash ID`}),
+(n:Vehicle {vehicleID: row.`Vehicle ID`})
+CREATE (c)-[:INVOLVED]->(n)
+
+// KILLED_AT (Person -> Location)
+LOAD CSV WITH HEADERS FROM 'file:///rel_killed_at.csv' AS row 
+MATCH (p:Person {personID: row.`Person ID`}),
+(n:Location {locationID: row.`Location ID`})
+CREATE (p)-[:KILLED_AT]->(n)

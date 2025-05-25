@@ -1,0 +1,60 @@
+// Cypher scripts for loading nodes
+
+// Crash node
+LOAD CSV WITH HEADERS FROM 'file:///node_crash.csv' AS row
+CREATE (d:Crash {
+    crashID: row.`Crash ID`, 
+    crashType: row.`Crash Type`,
+	fatalities: toInteger(row.`Number Fatalities`)
+})
+
+// Person node
+LOAD CSV WITH HEADERS FROM 'file:///node_person.csv' AS row
+CREATE (d:Person {
+    gender: row.`Gender`, 
+    age: toInteger(row.`Age`),
+	roadUser: row.`Road User`,
+    ageGroup: row.`Age Group`,
+    personID: row.`Person ID`
+})
+
+// Time node
+LOAD CSV WITH HEADERS FROM 'file:///node_time.csv' AS row
+CREATE (d:Time {
+    month: toInteger(row.`Month`), 
+    year: toInteger(row.`Year`),
+	day: row.`Dayweek`,
+    time: time(row.`Time`),
+    timeOfDay: row.`Time of day`,
+    dayType: row.`Day of week`,
+    christmas: row.`Christmas Period`,
+    easter: row.`Easter Period`,
+    timeID: row.`Time ID`
+})
+
+// Road node
+LOAD CSV WITH HEADERS FROM 'file:///node_road.csv' AS row
+CREATE (d:Road {
+    roadType: row.`National Road Type`,
+    speedLimit: toInteger(row.`Speed Limit`),
+    roadID: row.`Road ID`
+})
+
+// Vehicle node
+LOAD CSV WITH HEADERS FROM 'file:///node_vehicle.csv' AS row
+CREATE (d:Vehicle {
+    busInvolved: row.`Bus Involvement`,
+    heavyRigidTruckInvolved: row.`Heavy Rigid Truck Involvement`,
+    articulatedTruckInvolved: row.`Articulated Truck Involvement`,
+    vehicleID: row.`Vehicle ID`
+})
+
+// Location node
+LOAD CSV WITH HEADERS FROM 'file:///node_location.csv' AS row
+CREATE (d:Location {
+    state: row.`State`,
+    SA4Name: row.`SA4 Name 2021`,
+    LGAName: row.`National LGA Name 2024`,
+    remoteness: row.`National Remoteness Areas`,
+    locationID: row.`Location ID`
+})
